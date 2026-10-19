@@ -1,0 +1,42 @@
+﻿<h3>Actividad10</h3>
+
+@* Componente para visualizar el estado del sistema basado en un código numérico *@
+
+<div class="d-inline-flex align-items-center p-2 rounded border" style="gap: 10px; background-color: #f8f9fa;">
+    <!-- Indicador de color -->
+    <span class="rounded-circle d-inline-block"
+          style="width: 16px; height: 16px; background-color: @ObtenerColorHex();">
+    </span>
+
+    <!-- Mensaje de estado -->
+    <span style="font-weight: 500; color: #333;">
+        @ObtenerMensajeEstado()
+    </span>
+</div>
+
+@code {
+    [Parameter]
+    public int CodigoEstado { get; set; }
+
+    private string ObtenerMensajeEstado()
+    {
+        return CodigoEstado switch
+        {
+            200 => "Sistema Operacional",
+            404 => "Recurso No Encontrado",
+            500 => "Error Interno del Servidor",
+            _ => "Estado Desconocido"
+        };
+    }
+
+    private string ObtenerColorHex()
+    {
+        return CodigoEstado switch
+        {
+            200 => "#28a745", // Verde
+            404 => "#ffc107", // Amarillo
+            500 => "#dc3545", // Rojo
+            _ => "#6c757d"  // Gris
+        };
+    }
+}

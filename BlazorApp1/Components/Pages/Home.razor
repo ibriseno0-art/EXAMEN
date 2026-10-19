@@ -1,0 +1,45 @@
+﻿@page "/"
+
+@rendermode InteractiveServer
+
+<h3>Lista de Actividades</h3>
+
+
+<!-- Formulario de entrada -->
+<div>
+    <input type="text" placeholder="Escriba una actividad" @bind="nuevaActividad" />
+    <button @onclick="AgregarActividad">Agregar</button>
+</div>
+
+<!-- Lista de tareas -->
+<ul>
+    @foreach (var actividad in actividades)
+    {
+        <li>
+            @actividad
+            <button @onclick="() => EliminarActividad(actividad)">Eliminar</button>
+        </li>
+    }
+</ul>
+
+@code {
+    // Colección para guardar las actividades
+    private List<string> actividades = new List<string>();
+    private string nuevaActividad = string.Empty;
+
+    // Agregar actividad a la colección
+    private void AgregarActividad()
+    {
+        if (!string.IsNullOrWhiteSpace(nuevaActividad))
+        {
+            actividades.Add(nuevaActividad);
+            nuevaActividad = string.Empty;
+        }
+    }
+
+    // Eliminar actividad de la colección
+    private void EliminarActividad(string actividad)
+    {
+        actividades.Remove(actividad);
+    }
+}

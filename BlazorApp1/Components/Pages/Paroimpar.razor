@@ -1,0 +1,63 @@
+﻿@page "/par-impar"
+@rendermode InteractiveServer
+
+<h3>Determinar Par o Impar</h3>
+
+<div class="container-fluid">
+    <div class="row mb-2 align-items-center">
+        <label class="col-sm-2 col-form-label">Número</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" @bind="numero" step="1" placeholder="Ingresa un número" />
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-10">
+            <button class="btn btn-primary" @onclick="Verificar">
+                Verificar
+            </button>
+        </div>
+    </div>
+
+    <div class="row mb-2 align-items-center">
+        <label class="col-sm-2 col-form-label">Resultado</label>
+        <div class="col-sm-10">
+            <input class="form-control" value="@resultado" disabled />
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-warning mt-2" role="alert">
+            @mensajeError
+        </div>
+    }
+</div>
+
+@code {
+    private int? numero;
+    private string resultado = "";
+    private string mensajeError = "";
+
+    private void Verificar()
+    {
+        mensajeError = "";
+
+        if (numero == null)
+        {
+            mensajeError = "Por favor, ingresa un número entero válido.";
+            resultado = "";
+            return;
+        }
+
+        if (numero % 2 == 0)
+        {
+            resultado = $"El número {numero} es PAR";
+        }
+        else
+        {
+            resultado = $"El número {numero} es IMPAR";
+        }
+    }
+}

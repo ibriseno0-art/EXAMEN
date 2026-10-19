@@ -1,0 +1,194 @@
+﻿@page "/examen"
+@rendermode InteractiveServer
+
+<PageTitle>WebApplication1 - Segunda parcial</PageTitle>
+
+<header class="bg-dark text-white p-3 mb-4">
+    <div class="container">
+        <h2 class="m-0">WebApplication1</h2>
+        <small class="text-secondary">Segunda 3B</small>
+    </div>
+</header>
+
+<main class="container">
+    <div class="card p-4 mx-auto" style="max-width: 600px;">
+        <h1 class="h3 mb-3">Registro de productos</h1>
+
+        @if (!string.IsNullOrEmpty(mensajeError))
+        {
+            <div class="alert alert-danger" role="alert">
+                @mensajeError
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(mensajeExito))
+        {
+            <div class="alert alert-success" role="alert">
+                @mensajeExito
+            </div>
+        }
+
+        <form @onsubmit:preventDefault>
+            <div class="mb-3">
+                <label for="numInventario" class="form-label fw-bold">No. de inventario</label>
+                <input type="number" id="numInventario" class="form-control" @bind-value="inputNumero" min="1" />
+            </div>
+
+            <div class="mb-3">
+                <label for="descripcion" class="form-label fw-bold">Descripción</label>
+                <input type="text" id="descripcion" class="form-control" @bind-value="inputDescripcion" placeholder="Escribe la descripción del producto" />
+            </div>
+
+            <div class="mb-3">
+                <label for="departamento" class="form-label fw-bold">Departamento</label>
+                <select id="departamento" class="form-select" @bind="inputDepartamento">
+                    <option value="">-- Selecciona un departamento --</option>
+                    <option value="Frutas">Frutas</option>
+                    <option value="Verduras">Verduras</option>
+                    <option value="Lácteos">Lácteos</option>
+                </select>
+            </div>
+
+            <div class="mb-2">
+                <button type="button" class="btn btn-primary me-2 mb-2" @onclick="GuardarDatos">Guardar datos</button>
+                <button type="button" class="btn btn-primary mb-2" @onclick='() => MostrarLista("todos")'>Lista completa</button>
+            </div>
+
+            <div class="mb-3">
+                <button type="button" class="btn btn-primary me-2 mb-2" @onclick='() => MostrarLista("Frutas")'>Lista de frutas</button>
+                <button type="button" class="btn btn-primary me-2 mb-2" @onclick='() => MostrarLista("Verduras")'>Lista de verduras</button>
+                <button type="button" class="btn btn-primary mb-2" @onclick='() => MostrarLista("Lácteos")'>Lista de lácteos</button>
+            </div>
+        </form>
+
+
+        @if (mostrarTabla)
+        {
+            <div class="mt-4">
+                <h3 class="h5">@tituloLista</h3>
+                <table class="table table-bordered table-striped mt-2">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No. Inventario</th>
+                            <th>Descripción</th>
+                            <th>Departamento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (productosFiltrados.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No hay productos para mostrar.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var prod in productosFiltrados)
+                            {
+                                <tr>
+                                    <td>@prod.Numero</td>
+                                    <td>@prod.Descripcion</td>
+                                    <td>@prod.Departamento</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-danger mt-2" @onclick="CerrarLista">Cerrar lista</button>
+            </div>
+        }
+    </div>
+</main>
+
+@code {
+
+    private int inputNumero = 0;
+    private string inputDescripcion = string.Empty;
+    private string inputDepartamento = string.Empty;
+
+
+    private List<(int Numero, string Descripcion, string Departamento)> inventario = new();
+    private List<(int Numero, string Descripcion, string Departamento)> productosFiltrados = new();
+
+
+    private bool mostrarTabla = false;
+    private string tituloLista = "Listado de productos";
+    private string mensajeError = string.Empty;
+    private string mensajeExito = string.Empty;
+
+
+    private void GuardarDatos()
+    {
+        mensajeError = string.Empty;
+        mensajeExito = string.Empty;
+
+
+        if (inputNumero <= 0 || string.IsNullOrWhiteSpace(inputDescripcion) || string.IsNullOrWhiteSpace(inputDepartamento))
+        {
+            mensajeError = "Por favor, complete todos los campos correctamente.";
+            return;
+        }
+
+
+        bool existe = false;
+        foreach (var p in inventario)
+        {
+            if (p.Numero == inputNumero)
+            {
+                existe = true;
+                break;
+            }
+        }
+
+        if (existe)
+        {
+            mensajeError = "Error: El número de inventario ya existe. Debe ser único.";
+            return;
+        }
+
+
+        inventario.Add((inputNumero, inputDescripcion, inputDepartamento));
+
+        mensajeExito = "Producto guardado exitosamente.";
+
+
+        inputNumero = 0;
+        inputDescripcion = string.Empty;
+        inputDepartamento = string.Empty;
+    }
+
+
+    private void MostrarLista(string filtro)
+    {
+        mensajeError = string.Empty;
+        mensajeExito = string.Empty;
+        productosFiltrados.Clear();
+
+  
+        if (filtro == "todos")
+        {
+            tituloLista = "Lista Completa de Productos";
+        }
+        else
+        {
+            tituloLista = "Lista de " + filtro;
+        }
+
+
+        foreach (var prod in inventario)
+        {
+            if (filtro == "todos" || prod.Departamento == filtro)
+            {
+                productosFiltrados.Add(prod);
+            }
+        }
+
+        mostrarTabla = true;
+    }
+
+ 
+    private void CerrarLista()
+    {
+        mostrarTabla = false;
+    }
+}

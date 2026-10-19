@@ -1,0 +1,74 @@
+﻿@page "/actividad13"
+@rendermode InteractiveServer
+
+@using BlazorApp1.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
+
+<h3>Administrador de Tareas (MySQL / XAMPP)</h3>
+
+<div style="margin-bottom: 15px;">
+    <input @bind="nuevaTarea" placeholder="Escribe una tarea..." />
+    <button @onclick="AgregarTarea">Agregar Tarea</button>
+</div>
+
+@if (listaTareas == null)
+{
+    <p>Cargando datos desde MySQL...</p>
+}
+else if (!listaTareas.Any())
+{
+    <p>No hay tareas en la base de datos.</p>
+}
+else
+{
+    <ul>
+        @foreach (var item in listaTareas)
+        {
+            <li style="margin-bottom: 5px;">
+                @item.Nombre
+                <button @onclick="() => EliminarTarea(item)">Eliminar</button>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Tarea> listaTareas = new();
+    private string nuevaTarea = string.Empty;
+
+    // Se ejecuta al cargar la página: consulta la base de datos
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTareas();
+    }
+
+    private async Task CargarTareas()
+    {
+        listaTareas = await DbContext.Tareas.ToListAsync();
+    }
+
+    // Agrega y guarda permanentemente en la base de datos
+    private async Task AgregarTarea()
+    {
+        if (!string.IsNullOrWhiteSpace(nuevaTarea))
+        {
+            var tarea = new Tarea { Nombre = nuevaTarea };
+
+            DbContext.Tareas.Add(tarea);
+            await DbContext.SaveChangesAsync(); // Escribe en MySQL
+
+            nuevaTarea = string.Empty;
+            await CargarTareas(); // Actualiza la lista en pantalla
+        }
+    }
+
+    // Elimina permanentemente de la base de datos
+    private async Task EliminarTarea(Tarea tarea)
+    {
+        DbContext.Tareas.Remove(tarea);
+        await DbContext.SaveChangesAsync(); // Borra de MySQL
+
+        await CargarTareas(); // Actualiza la lista en pantalla
+    }
+}
